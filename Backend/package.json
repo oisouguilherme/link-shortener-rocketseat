@@ -1,0 +1,42 @@
+{
+  "name": "link-shortener-backend",
+  "version": "1.0.0",
+  "description": "Backend para encurtador de URLs",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsup src --out-dir dist",
+    "start": "node dist/server.js",
+    "db:migrate": "drizzle-kit migrate",
+    "db:generate": "drizzle-kit generate",
+    "db:studio": "drizzle-kit studio"
+  },
+  "keywords": [
+    "url-shortener",
+    "fastify",
+    "drizzle",
+    "postgres"
+  ],
+  "author": "Guilherme",
+  "license": "MIT",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.645.0",
+    "@fastify/cors": "^9.0.1",
+    "@fastify/multipart": "^8.3.0",
+    "csv-parser": "^3.0.0",
+    "csv-writer": "^1.6.0",
+    "dotenv": "^17.2.2",
+    "drizzle-orm": "^0.33.0",
+    "fastify": "^4.24.3",
+    "nanoid": "^5.0.7",
+    "postgres": "^3.4.4",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.8.0",
+    "drizzle-kit": "^0.24.2",
+    "tsup": "^7.2.0",
+    "tsx": "^4.1.0",
+    "typescript": "^5.2.2"
+  }
+}
