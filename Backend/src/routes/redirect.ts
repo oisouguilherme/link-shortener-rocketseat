@@ -11,20 +11,25 @@ export async function redirectRoutes(fastify: FastifyInstance) {
       try {
         const { shortCode } = shortCodeParamSchema.parse(request.params);
 
-        const [link] = await db
+        const [existingLink] = await db
+          .select()
+          .from(links)
+          .where(eq(links.shortCode, shortCode))
+          .limit(1);
+
+        if (!existingLink) {
+          return reply.redirect(302, `${process.env.CORS_ORIGIN}/404`);
+        }
+
+        await db
           .update(links)
           .set({
             accessCount: sql`${links.accessCount} + 1`,
             updatedAt: new Date(),
           })
-          .where(eq(links.shortCode, shortCode))
-          .returning();
+          .where(eq(links.shortCode, shortCode));
 
-        if (!link) {
-          return reply.redirect(302, `${process.env.CORS_ORIGIN}/404`);
-        }
-
-        return reply.redirect(301, link.originalUrl);
+        return reply.redirect(301, existingLink.originalUrl);
       } catch (error) {
         fastify.log.error(error);
         return reply.redirect(302, `${process.env.CORS_ORIGIN}/404`);
