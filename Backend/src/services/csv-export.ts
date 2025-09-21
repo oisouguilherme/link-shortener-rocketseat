@@ -1,4 +1,6 @@
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { nanoid } from "nanoid";
 import { createObjectCsvWriter } from "csv-writer";
 import path from "path";
@@ -68,6 +70,7 @@ export class CsvExportService {
         Body: fileContent,
         ContentType: "text/csv",
         ContentDisposition: `attachment; filename="${fileName}"`,
+        ACL: "private", // Arquivo privado, acessível apenas via URL assinada
       });
 
       await s3Client.send(uploadCommand);
@@ -75,10 +78,17 @@ export class CsvExportService {
       // Limpar arquivo temporário
       await fs.unlink(tempFilePath);
 
-      // Retornar URL do arquivo no S3
-      const fileUrl = `https://${process.env.AWS_S3_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`;
+      // Gerar URL assinada (válida por 1 hora)
+      const getObjectCommand = new GetObjectCommand({
+        Bucket: process.env.AWS_S3_BUCKET!,
+        Key: fileName,
+      });
 
-      return fileUrl;
+      const signedUrl = await getSignedUrl(s3Client, getObjectCommand, {
+        expiresIn: 3600, // 1 hora
+      });
+
+      return signedUrl;
     } catch (error) {
       console.error("Erro ao exportar CSV:", error);
       throw new Error("Falha ao exportar links para CSV");
