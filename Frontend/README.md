@@ -1,69 +1,146 @@
-# React + TypeScript + Vite
+# 🎨 Link Shortener - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> Desafio da Pós-Graduação Rocketseat
 
-Currently, two official plugins are available:
+Interface web para encurtar URLs desenvolvida com **React**, **TypeScript**, **React Query** e **Vite**.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Como rodar
 
-## Expanding the ESLint configuration
+### 1. Instalar dependências
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 2. Iniciar o servidor de desenvolvimento
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run dev
 ```
+
+Interface rodando em: `http://localhost:5173`
+
+> ⚠️ **Importante**: O backend deve estar rodando em `http://localhost:3333`
+
+## 📋 Funcionalidades
+
+✅ **Criar links encurtados**
+
+- Formulário com validação em tempo real
+- Código personalizado ou automático
+- Preview do link encurtado
+
+✅ **Listar links**
+
+- Lista com paginação
+- Contador de acessos
+- Botões de ação (copiar/deletar)
+
+✅ **Redirecionamento**
+
+- Tela de loading antes do redirecionamento
+- Tratamento de erros 404
+
+✅ **Exportar dados**
+
+- Download de CSV via AWS S3
+- Feedback visual do processo
+
+✅ **UX/UI responsiva**
+
+- Design mobile-first
+- Estados de loading e erro
+- Feedback de interações
+
+## 🛠️ Stack Técnica
+
+- **React 18** - Biblioteca principal
+- **TypeScript** - Tipagem estática
+- **Vite** - Build tool e dev server
+- **React Query** - Gerenciamento de estado servidor
+- **React Hook Form** - Formulários performáticos
+- **Zod** - Validação de dados
+- **Axios** - Cliente HTTP
+- **Tailwind CSS** - Estilização
+
+## 📁 Estrutura do Projeto
+
+```
+src/
+├── components/          # Componentes reutilizáveis
+│   ├── CreateLinkForm.tsx
+│   └── LinksList.tsx
+├── pages/              # Páginas da aplicação
+│   ├── Home/
+│   ├── NotFound/
+│   └── Redirect/
+├── hooks/              # Custom hooks
+│   └── useLinks.ts
+├── services/           # Configuração de APIs
+│   └── api.ts
+├── types/              # Tipos TypeScript
+│   ├── api.ts
+│   └── validation.ts
+└── assets/             # Ícones e recursos
+    └── Icons.tsx
+```
+
+## 🎯 Principais Componentes
+
+### **CreateLinkForm**
+
+- Formulário de criação de links
+- Validação com Zod + React Hook Form
+- Estados de loading e erro
+- Preview do link gerado
+
+### **LinksList**
+
+- Lista paginada de links
+- Ações de copiar e deletar
+- Exportação de CSV
+- Feedback visual
+
+### **Redirect**
+
+- Tela de redirecionamento
+- Loading state
+- Tratamento de erros
+
+## 🔗 Integração com Backend
+
+O frontend consome as seguintes APIs:
+
+| Endpoint                  | Uso          |
+| ------------------------- | ------------ |
+| `POST /api/links`         | Criar link   |
+| `GET /api/links`          | Listar links |
+| `DELETE /api/links/:code` | Deletar link |
+| `POST /api/export`        | Exportar CSV |
+
+## 🧪 Scripts Disponíveis
+
+```bash
+# Desenvolvimento
+npm run dev
+
+# Build para produção
+npm run build
+
+# Preview da build
+npm run preview
+
+# Linting
+npm run lint
+```
+
+## 🎨 Design System
+
+- **Cores**: Sistema baseado em tons de cinza e azul
+- **Tipografia**: Font system nativa do browser
+- **Spacing**: Sistema de espaçamento Tailwind
+- **Responsividade**: Mobile-first approach
+
+---
+
+**Desenvolvido para o desafio da Rocketseat** 🚀

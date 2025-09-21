@@ -1,202 +1,147 @@
-# Link Shortener Backend
+# 🔗 Link Shortener - Backend
 
-Backend para aplicação de encurtamento de URLs desenvolvido com TypeScript, Fastify, Drizzle ORM e PostgreSQL.
+> Desafio da Pós-Graduação Rocketseat
 
-## 🚀 Funcionalidades
+API para encurtar URLs desenvolvida com **TypeScript**, **Fastify**, **Drizzle ORM** e **PostgreSQL**.
 
-- ✅ Criar links encurtados
-- ✅ Validação de URL e formato de código
-- ✅ Prevenção de códigos duplicados
-- ✅ Deletar links
-- ✅ Obter URL original através do código encurtado
-- ✅ Listar todos os links com paginação
-- ✅ Incrementar contador de acessos automaticamente
-- ✅ Exportar links para CSV
-- ✅ Upload automático do CSV para S3/CDN
-- ✅ CORS habilitado para frontend
+## 🚀 Como rodar
 
-## 🛠️ Tecnologias
-
-- **TypeScript** - Linguagem principal
-- **Fastify** - Framework web
-- **Drizzle ORM** - ORM para PostgreSQL
-- **PostgreSQL** - Banco de dados
-- **AWS S3** - Storage para arquivos CSV
-- **Zod** - Validação de dados
-- **Nanoid** - Geração de IDs únicos
-
-## 📋 Pré-requisitos
-
-- Node.js 18+
-- PostgreSQL
-- Conta AWS com S3 configurado (para exportação CSV)
-
-## ⚙️ Instalação
-
-1. Clone o repositório e navegue para o diretório do backend:
-
-```bash
-cd Backend
-```
-
-2. Instale as dependências:
+### 1. Instalar dependências
 
 ```bash
 npm install
 ```
 
-3. Configure as variáveis de ambiente:
+### 2. Configurar banco de dados
+
+#### Opção A: Com Docker (Recomendado)
+
+```bash
+# Subir PostgreSQL via Docker
+docker run --name postgres-linkshortener \
+  -e POSTGRES_PASSWORD=postgres \
+  -e POSTGRES_DB=link_shortener \
+  -p 5432:5432 \
+  -d postgres:15
+
+# Executar migração
+npm run db:migrate
+```
+
+#### Opção B: PostgreSQL local
+
+```bash
+# Criar banco PostgreSQL
+createdb link_shortener
+
+# Executar migração
+npm run db:migrate
+```
+
+### 3. Configurar variáveis de ambiente
 
 ```bash
 cp .env.example .env
 ```
 
-4. Edite o arquivo `.env` com suas configurações:
+Edite o `.env`:
 
 ```env
-DATABASE_URL=postgresql://username:password@localhost:5432/link_shortener
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/link_shortener
 PORT=3333
-HOST=0.0.0.0
-AWS_ACCESS_KEY_ID=your_access_key_here
-AWS_SECRET_ACCESS_KEY=your_secret_key_here
-AWS_REGION=us-east-1
-AWS_S3_BUCKET=your-bucket-name
 APP_URL=http://localhost:3333
 CORS_ORIGIN=http://localhost:5173
 ```
 
-5. Execute as migrações do banco:
-
-```bash
-npm run db:migrate
-```
-
-6. Inicie o servidor de desenvolvimento:
+### 4. Iniciar servidor
 
 ```bash
 npm run dev
 ```
 
-## 🐳 Docker
+Servidor rodando em: `http://localhost:3333`
 
-### Usando Docker Compose (Recomendado para desenvolvimento)
+## 📋 Funcionalidades
 
-```bash
-docker-compose up -d
-```
+✅ **Criar link encurtado**
 
-Isso irá iniciar:
+- POST `/api/links`
+- Código personalizado ou automático
 
-- PostgreSQL na porta 5432
-- API na porta 3333
+✅ **Listar links**
 
-### Build da imagem Docker
+- GET `/api/links`
+- Paginação inclusa
 
-```bash
-docker build -t link-shortener-backend .
-```
+✅ **Deletar link**
 
-## 📚 API Endpoints
+- DELETE `/api/links/:shortCode`
 
-### Links
+✅ **Redirecionamento**
 
-#### Criar Link
+- GET `/:shortCode`
+- Incrementa contador automaticamente
 
-```http
-POST /api/links
-Content-Type: application/json
+✅ **Exportar CSV**
 
-{
-  "originalUrl": "https://example.com",
-  "shortCode": "abc123" // opcional
-}
-```
+- POST `/api/export`
+- Upload automático para AWS S3
 
-#### Listar Links
+✅ **Página 404**
 
-```http
-GET /api/links?page=1&limit=10
-```
+- Links inexistentes redirecionam para frontend
 
-#### Deletar Link
+## 🛠️ Stack Técnica
 
-```http
-DELETE /api/links/:shortCode
-```
+- **TypeScript** - Linguagem
+- **Fastify** - Framework web
+- **Drizzle ORM** - Banco de dados
+- **PostgreSQL** - Storage
+- **Docker** - Containerização (opcional)
+- **AWS S3** - Arquivos CSV
+- **Zod** - Validação
 
-#### Incrementar Acesso
+## � API Endpoints
 
-```http
-PATCH /api/links/:shortCode/access
-```
+| Método | Rota               | Descrição    |
+| ------ | ------------------ | ------------ |
+| POST   | `/api/links`       | Criar link   |
+| GET    | `/api/links`       | Listar links |
+| DELETE | `/api/links/:code` | Deletar link |
+| GET    | `/:code`           | Redirecionar |
+| POST   | `/api/export`      | Exportar CSV |
 
-### Redirecionamento
-
-#### Acessar Link Encurtado
-
-```http
-GET /:shortCode
-```
-
-Redireciona para a URL original e incrementa o contador.
-
-### Exportação
-
-#### Exportar CSV
-
-```http
-GET /api/export/csv
-```
-
-Retorna URL do arquivo CSV no S3.
-
-### Health Check
-
-```http
-GET /health
-```
-
-## 📊 Estrutura do Banco
-
-A tabela `links` possui os seguintes campos:
-
-- `id` - ID único (serial)
-- `original_url` - URL original (text)
-- `short_code` - Código encurtado único (text)
-- `access_count` - Contador de acessos (integer, default 0)
-- `created_at` - Data de criação (timestamp)
-- `updated_at` - Data de atualização (timestamp)
-
-## 🔧 Scripts Disponíveis
-
-- `npm run dev` - Inicia servidor de desenvolvimento
-- `npm run build` - Faz build da aplicação
-- `npm start` - Inicia servidor de produção
-- `npm run db:generate` - Gera novas migrações
-- `npm run db:migrate` - Executa migrações
-- `npm run db:studio` - Abre Drizzle Studio
-
-## 🚀 Deploy
-
-1. Faça build da aplicação:
+## 🧪 Testando
 
 ```bash
-npm run build
+# Criar link
+curl -X POST http://localhost:3333/api/links \
+  -H "Content-Type: application/json" \
+  -d '{"originalUrl": "https://google.com"}'
+
+# Acessar link
+curl http://localhost:3333/abc123
 ```
 
-2. Configure as variáveis de ambiente no seu provedor
-3. Execute as migrações:
+## 🐳 Docker (Opcional)
+
+Se preferir, você pode rodar apenas o PostgreSQL via Docker:
 
 ```bash
-npm run db:migrate
+# Subir banco
+docker run --name postgres-linkshortener \
+  -e POSTGRES_PASSWORD=postgres \
+  -e POSTGRES_DB=link_shortener \
+  -p 5432:5432 \
+  -d postgres:15
+
+# Parar banco
+docker stop postgres-linkshortener
+
+# Reiniciar banco
+docker start postgres-linkshortener
 ```
 
-4. Inicie a aplicação:
+---
 
-```bash
-npm start
-```
-
-## 📝 Licença
-
-MIT
+**Desenvolvido para o desafio da Rocketseat** 🚀
