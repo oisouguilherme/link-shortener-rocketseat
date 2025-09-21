@@ -28,7 +28,6 @@ export function CreateLinkForm({ onSuccess }: CreateLinkFormProps) {
     resolver: zodResolver(createLinkSchemaTransformed),
   });
 
-  // Assistir mudanças no shortCode para mostrar preview
   const shortCodeValue = watch("shortCode");
 
   const onSubmit = async (data: CreateLinkFormData) => {
@@ -37,18 +36,12 @@ export function CreateLinkForm({ onSuccess }: CreateLinkFormProps) {
       setCreatedLink(response);
       reset();
       onSuccess?.();
-
-      // Limpar o erro se existir
-      if (createLinkMutation.error) {
-        createLinkMutation.reset();
-      }
     } catch (error) {
       console.error("Erro ao criar link:", error);
       setCreatedLink(null);
     }
   };
 
-  // Limpar link criado quando formulário é resetado
   useEffect(() => {
     const originalUrl = watch("originalUrl");
     if (!originalUrl) {
@@ -56,27 +49,14 @@ export function CreateLinkForm({ onSuccess }: CreateLinkFormProps) {
     }
   }, [watch("originalUrl")]);
 
-  // Limpar erro quando usuário começa a digitar novamente
-  useEffect(() => {
-    const originalUrl = watch("originalUrl");
-    const shortCode = watch("shortCode");
-
-    if (createLinkMutation.error && (originalUrl || shortCode)) {
-      createLinkMutation.reset();
-    }
-  }, [watch("originalUrl"), watch("shortCode"), createLinkMutation]);
-
-  // Extrair mensagem de erro da resposta da API
   const getErrorMessage = () => {
     if (!createLinkMutation.error) return null;
 
-    // Se o erro tem response.data (do axios)
     if ((createLinkMutation.error as any)?.response?.data) {
       const apiError = (createLinkMutation.error as any).response.data;
       return apiError.message || apiError.error || "Erro ao criar link";
     }
 
-    // Se é uma instância de Error
     if (createLinkMutation.error instanceof Error) {
       return createLinkMutation.error.message;
     }
@@ -84,7 +64,6 @@ export function CreateLinkForm({ onSuccess }: CreateLinkFormProps) {
     return "Erro ao criar link";
   };
 
-  // Gerar preview do link encurtado
   const getPreviewUrl = () => {
     if (createdLink) {
       return createdLink.shortUrl;

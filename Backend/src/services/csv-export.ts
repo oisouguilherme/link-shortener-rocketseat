@@ -21,20 +21,16 @@ const s3Client = new S3Client({
 export class CsvExportService {
   async exportLinksToCSV(): Promise<string> {
     try {
-      // Buscar todos os links do banco
       const allLinks = await db
         .select()
         .from(links)
         .orderBy(desc(links.createdAt));
 
-      // Gerar nome único para o arquivo
       const fileName = `links-export-${nanoid(10)}-${Date.now()}.csv`;
       const tempFilePath = path.join(process.cwd(), "temp", fileName);
 
-      // Criar diretório temporário se não existir
       await fs.mkdir(path.dirname(tempFilePath), { recursive: true });
 
-      // Configurar CSV writer
       const csvWriter = createObjectCsvWriter({
         path: tempFilePath,
         header: [
@@ -45,40 +41,46 @@ export class CsvExportService {
           { id: "accessCount", title: "Contagem de Acessos" },
           { id: "createdAt", title: "Data de Criação" },
         ],
+        encoding: "utf8",
+        fieldDelimiter: ",",
+        recordDelimiter: "\n",
+        headerIdDelimiter: ".",
+        alwaysQuote: true,
       });
 
-      // Preparar dados para CSV
       const csvData = allLinks.map((link) => ({
-        id: link.id,
-        originalUrl: link.originalUrl,
-        shortCode: link.shortCode,
+        id: String(link.id),
+        originalUrl: String(link.originalUrl),
+        shortCode: String(link.shortCode),
         shortUrl: `${process.env.APP_URL}/${link.shortCode}`,
-        accessCount: link.accessCount,
-        createdAt: link.createdAt.toISOString(),
+        accessCount: String(link.accessCount),
+        createdAt: new Date(link.createdAt).toLocaleString("pt-BR", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        }),
       }));
 
-      // Escrever arquivo CSV
       await csvWriter.writeRecords(csvData);
 
-      // Ler arquivo para upload
       const fileContent = await fs.readFile(tempFilePath);
 
-      // Upload para S3
       const uploadCommand = new PutObjectCommand({
         Bucket: process.env.AWS_S3_BUCKET!,
         Key: fileName,
         Body: fileContent,
         ContentType: "text/csv",
         ContentDisposition: `attachment; filename="${fileName}"`,
-        ACL: "private", // Arquivo privado, acessível apenas via URL assinada
+        ACL: "private",
       });
 
       await s3Client.send(uploadCommand);
 
-      // Limpar arquivo temporário
       await fs.unlink(tempFilePath);
 
-      // Gerar URL assinada (válida por 1 hora)
       const getObjectCommand = new GetObjectCommand({
         Bucket: process.env.AWS_S3_BUCKET!,
         Key: fileName,
