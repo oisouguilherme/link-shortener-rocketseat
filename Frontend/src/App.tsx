@@ -19,6 +19,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/404" element={<NotFound />} />
           <Route path="/:linkEncurtado" element={<Redirect />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

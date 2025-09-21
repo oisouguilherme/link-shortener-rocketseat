@@ -5,8 +5,6 @@ import {
   type CreateLinkFormData,
 } from "../types/validation";
 import { useCreateLink } from "../hooks/useLinks";
-import { useState, useEffect } from "react";
-import type { CreateLinkResponse } from "../types/api";
 
 interface CreateLinkFormProps {
   onSuccess?: () => void;
@@ -14,40 +12,25 @@ interface CreateLinkFormProps {
 
 export function CreateLinkForm({ onSuccess }: CreateLinkFormProps) {
   const createLinkMutation = useCreateLink();
-  const [createdLink, setCreatedLink] = useState<CreateLinkResponse | null>(
-    null
-  );
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-    watch,
   } = useForm<CreateLinkFormData>({
     resolver: zodResolver(createLinkSchemaTransformed),
   });
 
-  const shortCodeValue = watch("shortCode");
-
   const onSubmit = async (data: CreateLinkFormData) => {
     try {
-      const response = await createLinkMutation.mutateAsync(data);
-      setCreatedLink(response);
+      await createLinkMutation.mutateAsync(data);
       reset();
       onSuccess?.();
     } catch (error) {
       console.error("Erro ao criar link:", error);
-      setCreatedLink(null);
     }
   };
-
-  useEffect(() => {
-    const originalUrl = watch("originalUrl");
-    if (!originalUrl) {
-      setCreatedLink(null);
-    }
-  }, [watch("originalUrl")]);
 
   const getErrorMessage = () => {
     if (!createLinkMutation.error) return null;
@@ -62,18 +45,6 @@ export function CreateLinkForm({ onSuccess }: CreateLinkFormProps) {
     }
 
     return "Erro ao criar link";
-  };
-
-  const getPreviewUrl = () => {
-    if (createdLink) {
-      return createdLink.shortUrl;
-    }
-
-    if (shortCodeValue && shortCodeValue.trim()) {
-      return `http://localhost:3333/${shortCodeValue.trim()}`;
-    }
-
-    return "http://localhost:3333/[código-gerado]";
   };
 
   return (
@@ -100,7 +71,7 @@ export function CreateLinkForm({ onSuccess }: CreateLinkFormProps) {
       </label>
       <label className="flex flex-col">
         <span className="text-xs text-cinza-500 uppercase mb-2">
-          Código Personalizado (opcional)
+          link encurtado
         </span>
         <input
           type="text"
@@ -117,20 +88,7 @@ export function CreateLinkForm({ onSuccess }: CreateLinkFormProps) {
           Deixe vazio para gerar automaticamente
         </p>
       </label>
-      <label className="flex flex-col">
-        <span className="text-xs text-cinza-500 uppercase mb-2">
-          link encurtado
-        </span>
-        <input
-          type="text"
-          readOnly
-          value={getPreviewUrl()}
-          placeholder="http://localhost:3333/[código-gerado]"
-          className={`px-4 py-3 border border-cinza-300 rounded-lg bg-gray-50 transition-all duration-200 ${
-            createdLink ? "text-blue-base font-medium" : "text-gray-500"
-          }`}
-        />
-      </label>
+
       <button
         type="submit"
         disabled={isSubmitting || createLinkMutation.isPending}
