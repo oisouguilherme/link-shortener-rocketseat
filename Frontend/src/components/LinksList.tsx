@@ -82,9 +82,13 @@ export function LinksList() {
                 className="flex gap-2 sm:gap-4 items-center justify-between border-b border-cinza-200 py-4 hover:bg-gray-50 transition-colors duration-200"
               >
                 <div className="flex flex-col w-40 sm:w-64">
-                  <p className="text-blue-base text-sm sm:text-base font-semibold hover:underline cursor-pointer">
+                  <a
+                    target="_blank"
+                    href={`/${link.shortCode}`}
+                    className="text-blue-base text-sm sm:text-base font-semibold hover:underline cursor-pointer"
+                  >
                     {link.shortUrl}
-                  </p>
+                  </a>
                   <p className="text-xs sm:text-sm text-cinza-500 truncate">
                     {link.originalUrl}
                   </p>

@@ -16,7 +16,7 @@ export function Redirect() {
 
       try {
         window.location.href = `http://localhost:3333/${linkEncurtado}`;
-      } catch (err) {
+      } catch (err: any) {
         console.error("Erro ao redirecionar:", err);
         setError("Link não encontrado ou inválido");
 
